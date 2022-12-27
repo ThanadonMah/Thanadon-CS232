@@ -47,12 +47,6 @@ void printArray(int arr[], int size)
 int main()
 {
     int arr[100], j = 0, value;
-    // while (cin >> value)
-    // {
-    //     arr[i] = value;
-    //     i++;
-    // }
-
     string line,num;
     getline(cin,line);
     for(int i = 0 ; i < line.size(); i++)
