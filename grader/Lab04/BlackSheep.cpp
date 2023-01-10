@@ -6,14 +6,9 @@ using namespace std;
 
 int main()
 {
-    int n, j = 1;
-    string l;
-    getline(cin,l);
-    n = stoi(l);
-    int arr[n+2];
-
+    int arr[20], j = 0, max = 0;
     string line,num;
-    
+
     getline(cin,line);
     int s = line.size();
 
@@ -21,12 +16,11 @@ int main()
     {
         if(line[i] == ' '){
             int check = stoi(num);
-            if(check > n || check < 1 || j >= n)
+            arr[j] = check;
+            if(check > max)
             {
-                cout << "`Out of range`";
-                return 0;
+                max = check;
             }
-            arr[check] = check;
             j++;
             num.clear();
         }
@@ -35,25 +29,40 @@ int main()
             if((i == s-1))
             {
                 int check = stoi(num);
-                if(check > n || check < 1 || j >= n)
+                arr[j] = check;
+                if(check > max)
                 {
-                    cout << "`Out of range`";
-                    return 0;
+                    max = check;
                 }
-                arr[check] = check;
                 j++;
                 num.clear();
             }
         }
     }
-    for(int k = 1 ; k <= n ; k++)
+
+    float k = j;
+    int balance = 1;
+    int chk[max+2];
+
+    for(int i = 0 ; i < max+2 ; i++)
     {
-        if(arr[k] != k)
+        chk[i] = 0;
+    }
+    for(int i = 0 ; i < j ; i++)
+    {
+        chk[arr[i]]++;
+    }
+    for(int i = 0 ; i <= max ; i++)
+    {
+        if(chk[i] > k/2)
         {
-            cout << k;
-            return 0;
+            cout << i << " ";
+            balance = 0;
         }
     }
-    printf("");
+    if(balance == 1)
+    {
+        cout << "Balance (T-T)";
+    }
     return 0;
 }
