@@ -34,11 +34,22 @@ void prim() {
 int main() {
     cin >> n >> m >> s;
 
+    if(s != 1)
+    {
+        cout <<  "What did you expect?";
+        return 0;
+    }
+
     memset(adj, -1, sizeof(adj));
 
     for (int i = 0; i < m; i++) {
         int u, v, w;
         cin >> u >> v >> w;
+        if(u > n || v > n || w < 1)
+        {
+            cout <<  "What did you expect?";
+            return 0;
+        }
         adj[u][v] = adj[v][u] = w;
     }
 
