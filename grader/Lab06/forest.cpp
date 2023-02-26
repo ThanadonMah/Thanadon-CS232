@@ -45,7 +45,7 @@ int main() {
     for (int i = 0; i < m; i++) {
         int u, v, w;
         cin >> u >> v >> w;
-        if(u > n || v > n || w < 1)
+        if(u > n || v > n || w < 0 || n <= 0 || v < 0)
         {
             cout <<  "What did you expect?";
             return 0;

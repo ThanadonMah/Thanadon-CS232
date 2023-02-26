@@ -1,27 +1,77 @@
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <string>
+#include <queue>
+#include <unordered_map>
+
 using namespace std;
-void print(vector<int> array){
-    for(auto i = array.begin();i != array.begin();i++){
-        cout << *i;
+
+struct Node {
+    char ch;
+    int freq;
+    Node *left, *right;
+    Node(char ch, int freq, Node* left = nullptr, Node* right = nullptr) {
+        this->ch = ch;
+        this->freq = freq;
+        this->left = left;
+        this->right = right;
     }
-}
-void selectionSort(vector<int> array){
-    for(int i=0;i<array.size()-2;i++){
-        for(int j=i+1;j<array.size()-1;j++){
-            if(array[i] > array[j]){
-                swap(array[i],array[j]);
-            }
-        }
+};
+
+struct comp {
+    bool operator()(Node* left, Node* right) {
+        return left->freq > right->freq;
     }
-    print(array);
+};
+
+unordered_map<char, string> huffmanCode;
+
+void encode(Node* root, string str) {
+    if (root == nullptr) {
+        return;
+    }
+    if (!root->left && !root->right) {
+        huffmanCode[root->ch] = str;
+    }
+    encode(root->left, str + "0");
+    encode(root->right, str + "1");
 }
 
-int main(){
-    vector<int> array;
-    array = {5,9,41,56,23,64,29,65,1};
-    for(auto i = array.begin();i != array.begin();i++){
-        cout << *i;
+void buildHuffmanTree(string text) {
+    unordered_map<char, int> freq;
+    for (char ch : text) {
+        freq[ch]++;
     }
-    selectionSort(array);
+    priority_queue<Node*, vector<Node*>, comp> pq;
+    for (auto pair : freq) {
+        pq.push(new Node(pair.first, pair.second));
+    }
+    while (pq.size() != 1) {
+        Node* left = pq.top();
+        pq.pop();
+        Node* right = pq.top();
+        pq.pop();
+        int sum = left->freq + right->freq;
+        pq.push(new Node('\0', sum, left, right));
+    }
+    Node* root = pq.top();
+    encode(root, "");
+}
+
+string encodeText(string text) {
+    string encodedText = "";
+    for (char ch : text) {
+        encodedText += huffmanCode[ch];
+    }
+    return encodedText;
+}
+int main() {
+    string text;
+    getline(cin, text);
+    for (int i = 0; i < text.size(); i++) {
+        text[i] = toupper(text[i]);
+    }
+    buildHuffmanTree(text);
+    string encodedText = encodeText(text);
+    cout << encodedText << endl;
+    return 0;
 }

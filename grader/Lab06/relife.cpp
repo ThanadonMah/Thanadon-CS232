@@ -1,113 +1,101 @@
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <queue>
-
+#include <unordered_map>
 using namespace std;
 
-// Tree node structure for Huffman coding
+// Node for Huffman tree
 struct Node {
-    char data;
+    char ch;
     int freq;
     Node *left, *right;
-
-    // Constructor
-    Node(char data, int freq)
-    {
-        this->data = data;
+    Node(char ch, int freq, Node* left = nullptr, Node* right = nullptr) {
+        this->ch = ch;
         this->freq = freq;
-        this->left = this->right = nullptr;
-    }
-
-    Node(char data, int num, Node* left, Node* right)
-    {
-        this->data = data;
-        this->freq = num;
         this->left = left;
         this->right = right;
     }
-};
-
-// Overload comparison operator to sort the nodes in a priority queue
-struct Compare {
-    bool operator()(Node* l, Node* r)
-    {
-        return l->freq > r->freq;
+    ~Node() {
+        delete left;
+        delete right;
     }
 };
 
-// Helper function to generate the codes
-void encode_helper(Node *root, string code, unordered_map<char, string> &codes)
-{
-    if (!root) {
-        return;
+// Comparison object for priority queue
+struct compare {
+    bool operator()(Node* left, Node* right) {
+        return left->freq > right->freq;
     }
+};
 
-    if (root->data != '\0') {
-        codes[root->data] = code;
-        return;
-    }
-
-    encode_helper(root->left, code + "0", codes);
-    encode_helper(root->right, code + "1", codes);
-}
-
-// Function to build the Huffman tree and encode the text
-void encode(string text)
-{
-    // Count frequency of each character in the text
+// Build Huffman tree and return root
+Node* buildHuffmanTree(string text) {
+    // Count frequency of each character
     unordered_map<char, int> freq;
-    for (char c : text) {
-        freq[c]++;
+    for (char ch : text) {
+        freq[ch]++;
     }
 
-    // Create a priority queue to store the nodes
-    priority_queue<Node*, vector<Node*>, Compare> pq;
-
-    // Add the nodes to the priority queue
+    // Build priority queue of nodes
+    priority_queue<Node*, vector<Node*>, compare> pq;
     for (auto pair : freq) {
         pq.push(new Node(pair.first, pair.second));
     }
 
-    // Build the Huffman tree
+    // Build Huffman tree
     while (pq.size() > 1) {
-        Node *left = pq.top();
-        pq.pop();
-        Node *right = pq.top();
-        pq.pop();
-
-        int sum = left->freq + right->freq;
-        pq.push(new Node('\0', sum, left, right));
+        Node* left = pq.top(); pq.pop();
+        Node* right = pq.top(); pq.pop();
+        Node* parent = new Node('$', left->freq + right->freq, left, right);
+        pq.push(parent);
     }
 
-    // Create a map to store the codes for each character
-    unordered_map<char, string> codes;
-    string code = "";
-
-    // Traverse the Huffman tree to generate the codes
-    Node *root = pq.top();
-    encode_helper(root, code, codes);
-
-    // Print the encoded text
-    for (char c : text) {
-        cout << codes[c];
-    }
-    cout << endl;
+    // Return root of Huffman tree
+    return pq.top();
 }
 
+// Traverse Huffman tree and store codes in a map
+void traverseHuffmanTree(Node* root, string code, unordered_map<char, string>& codes) {
+    if (root == nullptr) {
+        return;
+    }
+    if (root->left == nullptr && root->right == nullptr) {
+        codes[root->ch] = code;
+    }
+    traverseHuffmanTree(root->left, code + "0", codes);
+    traverseHuffmanTree(root->right, code + "1", codes);
+}
 
+// Encode text using Huffman codes
+string encode(string text, unordered_map<char, string>& codes) {
+    string result;
+    for (char ch : text) {
+        result += codes[ch];
+    }
+    return result;
+}
 
-int main()
-{
+int main() {
+    // Read input
     string text;
-    cin >> text;
+    getline(cin, text);
 
-    // Convert the text to uppercase
-    for (char &c : text) {
-        c = toupper(c);
+    // Convert all characters to uppercase
+    for (int i = 0; i < text.size(); i++) {
+        text[i] = toupper(text[i]);
     }
 
-    encode(text);
+    // Build Huffman tree and codes
+    unordered_map<char, string> codes;
+    Node* root = buildHuffmanTree(text);
+    traverseHuffmanTree(root, "", codes);
 
-    return 0;
+    // Encode text using Huffman codes
+    string encodedText = encode(text, codes);
+
+    // Print encoded text
+    cout << encodedText << endl;
+
+    // Clean up
+    delete root;
 }
